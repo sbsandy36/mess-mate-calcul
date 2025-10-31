@@ -94,3 +94,60 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Print Styles */
+@media print {
+  @page {
+    size: A4;
+    margin: 1cm;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .print\:shadow-none {
+    box-shadow: none !important;
+  }
+
+  .print\:border {
+    border: 1px solid #e5e7eb !important;
+  }
+
+  /* Prevent page breaks inside elements */
+  .print\:break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Ensure proper spacing */
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Hide buttons and interactive elements */
+  button:not(.print\:block) {
+    display: none !important;
+  }
+
+  /* Optimize card spacing for print */
+  .shadow-card, .shadow-elevated {
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+
+  /* Ensure colors are visible in print */
+  .text-destructive {
+    color: #dc2626 !important;
+  }
+
+  .text-success {
+    color: #16a34a !important;
+  }
+}

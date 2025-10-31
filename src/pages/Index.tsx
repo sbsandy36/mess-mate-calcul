@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, Download, Upload, Trash2, UserPlus, Users } from "lucide-react";
+import { Calculator, Download, Upload, Trash2, UserPlus, Users, Printer } from "lucide-react";
 import { toast } from "sonner";
 
 interface Member {
@@ -173,6 +173,11 @@ const Index = () => {
     }, 100);
   };
 
+  const printResults = () => {
+    window.print();
+    toast.success("Opening print dialog");
+  };
+
   const exportData = () => {
     const dataStr = JSON.stringify(members, null, 2);
     const dataBlob = new Blob([dataStr], { type: "application/json" });
@@ -290,7 +295,7 @@ const Index = () => {
                         <Input
                           type="number"
                           value={member.meals}
-                          onChange={(e) => updateMember(member.name, "meals", parseFloat(e.target.value) || 0)}
+                           onChange={(e) => updateMember(member.name, "meals", parseFloat(e.target.value || "0") || 0)}
                           onFocus={handleInputFocus}
                           className="w-20 h-8 text-sm"
                         />
@@ -301,7 +306,7 @@ const Index = () => {
                       <Input
                         type="number"
                         value={member.deposits}
-                        onChange={(e) => updateMember(member.name, "deposits", parseFloat(e.target.value) || 0)}
+                        onChange={(e) => updateMember(member.name, "deposits", parseFloat(e.target.value || "0") || 0)}
                         onFocus={handleInputFocus}
                         className="w-24 h-8 text-sm"
                       />
@@ -311,7 +316,7 @@ const Index = () => {
                       <Input
                         type="number"
                         value={member.guest}
-                        onChange={(e) => updateMember(member.name, "guest", parseFloat(e.target.value) || 0)}
+                        onChange={(e) => updateMember(member.name, "guest", parseFloat(e.target.value || "0") || 0)}
                         onFocus={handleInputFocus}
                         className="w-24 h-8 text-sm"
                       />
@@ -321,7 +326,7 @@ const Index = () => {
                       <Input
                         type="number"
                         value={member.fine}
-                        onChange={(e) => updateMember(member.name, "fine", parseFloat(e.target.value) || 0)}
+                        onChange={(e) => updateMember(member.name, "fine", parseFloat(e.target.value || "0") || 0)}
                         onFocus={handleInputFocus}
                         className="w-24 h-8 text-sm"
                       />
@@ -378,7 +383,7 @@ const Index = () => {
                   id="rice"
                   type="number"
                   value={riceCost}
-                  onChange={(e) => setRiceCost(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => setRiceCost(parseFloat(e.target.value || "0") || 0)}
                   onFocus={handleInputFocus}
                 />
               </div>
@@ -388,7 +393,7 @@ const Index = () => {
                   id="marketing"
                   type="number"
                   value={marketingCost}
-                  onChange={(e) => setMarketingCost(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => setMarketingCost(parseFloat(e.target.value || "0") || 0)}
                   onFocus={handleInputFocus}
                 />
               </div>
@@ -398,7 +403,7 @@ const Index = () => {
                   id="gas"
                   type="number"
                   value={gasCost}
-                  onChange={(e) => setGasCost(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => setGasCost(parseFloat(e.target.value || "0") || 0)}
                   onFocus={handleInputFocus}
                 />
               </div>
@@ -408,7 +413,7 @@ const Index = () => {
                   id="paper"
                   type="number"
                   value={paperCost}
-                  onChange={(e) => setPaperCost(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => setPaperCost(parseFloat(e.target.value || "0") || 0)}
                   onFocus={handleInputFocus}
                 />
               </div>
@@ -418,7 +423,7 @@ const Index = () => {
                   id="others"
                   type="number"
                   value={otherCosts}
-                  onChange={(e) => setOtherCosts(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => setOtherCosts(parseFloat(e.target.value || "0") || 0)}
                   onFocus={handleInputFocus}
                 />
               </div>
@@ -428,7 +433,7 @@ const Index = () => {
                   id="boundMeal"
                   type="number"
                   value={boundMeal}
-                  onChange={(e) => setBoundMeal(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => setBoundMeal(parseFloat(e.target.value || "0") || 0)}
                   onFocus={handleInputFocus}
                 />
               </div>
@@ -443,7 +448,7 @@ const Index = () => {
                   id="cookTotal"
                   type="number"
                   value={totalCookCharge}
-                  onChange={(e) => handleCookChargeChange(parseFloat(e.target.value) || 0, "total")}
+                  onChange={(e) => handleCookChargeChange(parseFloat(e.target.value || "0") || 0, "total")}
                   onFocus={handleInputFocus}
                   placeholder="Enter total or per head"
                 />
@@ -459,7 +464,7 @@ const Index = () => {
                   id="cookRate"
                   type="number"
                   value={cookRatePerHead}
-                  onChange={(e) => handleCookChargeChange(parseFloat(e.target.value) || 0, "perHead")}
+                  onChange={(e) => handleCookChargeChange(parseFloat(e.target.value || "0") || 0, "perHead")}
                   onFocus={handleInputFocus}
                   placeholder="Enter per head or total"
                 />
@@ -483,8 +488,66 @@ const Index = () => {
         {/* Results Section */}
         {results && overview && (
           <div id="results" className="space-y-6">
+            {/* Print Button */}
+            <div className="text-center print:hidden">
+              <Button 
+                variant="outline"
+                size="lg" 
+                onClick={printResults}
+                className="gap-2"
+              >
+                <Printer className="w-5 h-5" />
+                Print / Save as PDF
+              </Button>
+            </div>
+
+            {/* Compact Summary Table */}
+            <Card className="shadow-card print:shadow-none">
+              <CardHeader>
+                <CardTitle>Quick Summary</CardTitle>
+                <CardDescription>At-a-glance view of all member bills</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-2 font-semibold">Member</th>
+                        <th className="text-right p-2 font-semibold">Meals</th>
+                        <th className="text-right p-2 font-semibold">Total Bill</th>
+                        <th className="text-right p-2 font-semibold">Outstanding</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {results.map((member) => (
+                        <tr key={member.name} className="border-b hover:bg-muted/50">
+                          <td className="p-2">
+                            {member.name}
+                            {member.isGuest && (
+                              <Badge variant="secondary" className="ml-2 text-xs">Guest</Badge>
+                            )}
+                          </td>
+                          <td className="text-right p-2">
+                            {member.isGuest ? "-" : member.effectiveMeals}
+                          </td>
+                          <td className="text-right p-2 font-medium">
+                            ₹{member.totalBill.toFixed(2)}
+                          </td>
+                          <td className={`text-right p-2 font-semibold ${
+                            member.outstanding > 0 ? "text-destructive" : "text-success"
+                          }`}>
+                            ₹{member.outstanding.toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Overview Card */}
-            <Card className="shadow-elevated border-primary/20">
+            <Card className="shadow-elevated border-primary/20 print:shadow-none print:border">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calculator className="w-5 h-5" />
