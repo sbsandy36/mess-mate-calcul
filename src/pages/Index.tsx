@@ -13,6 +13,7 @@ interface Member {
   meals: number;
   deposits: number;
   guest: number;
+  fine: number;
   isGuest: boolean;
 }
 
@@ -22,6 +23,13 @@ interface BillResult extends Member {
   establishmentCharge: number;
   totalBill: number;
   outstanding: number;
+}
+
+interface OverviewData {
+  totalMeals: number;
+  mealRate: number;
+  totalMembers: number;
+  establishmentCharge: number;
 }
 
 const Index = () => {
@@ -43,6 +51,7 @@ const Index = () => {
   const [cookChargeMode, setCookChargeMode] = useState<"total" | "perHead">("total");
   
   const [results, setResults] = useState<BillResult[] | null>(null);
+  const [overview, setOverview] = useState<OverviewData | null>(null);
 
   // Load from localStorage
   useEffect(() => {
@@ -75,6 +84,7 @@ const Index = () => {
       meals: 0, 
       deposits: 0, 
       guest: 0,
+      fine: 0,
       isGuest: isGuestMember 
     }]);
     setNewMember("");
@@ -134,7 +144,7 @@ const Index = () => {
     const billResults: BillResult[] = effectiveMeals.map(member => {
       const mealCost = member.effectiveMeals * mealRate;
       const estCharge = member.isGuest ? 0 : establishmentCharge;
-      const totalBill = mealCost + estCharge + member.guest;
+      const totalBill = mealCost + estCharge + member.guest + member.fine;
       const outstanding = Math.round(totalBill - member.deposits);
 
       return {
@@ -144,6 +154,14 @@ const Index = () => {
         totalBill,
         outstanding
       };
+    });
+
+    // Set overview data
+    setOverview({
+      totalMeals,
+      mealRate,
+      totalMembers: nonGuestMembers.length,
+      establishmentCharge
     });
 
     setResults(billResults);
@@ -188,16 +206,19 @@ const Index = () => {
   };
 
   const handleCookChargeChange = (value: number, mode: "total" | "perHead") => {
-    setCookChargeMode(mode);
+    const nonGuestCount = members.filter(m => !m.isGuest).length;
+    
     if (mode === "total") {
       setTotalCookCharge(value);
-      const nonGuestCount = members.filter(m => !m.isGuest).length;
+      setCookChargeMode("total");
       if (nonGuestCount > 0) {
         setCookRatePerHead(value / nonGuestCount);
+      } else {
+        setCookRatePerHead(0);
       }
     } else {
       setCookRatePerHead(value);
-      const nonGuestCount = members.filter(m => !m.isGuest).length;
+      setCookChargeMode("perHead");
       setTotalCookCharge(value * nonGuestCount);
     }
   };
@@ -291,6 +312,16 @@ const Index = () => {
                         type="number"
                         value={member.guest}
                         onChange={(e) => updateMember(member.name, "guest", parseFloat(e.target.value) || 0)}
+                        onFocus={handleInputFocus}
+                        className="w-24 h-8 text-sm"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Label className="text-xs text-muted-foreground">Fine ₹:</Label>
+                      <Input
+                        type="number"
+                        value={member.fine}
+                        onChange={(e) => updateMember(member.name, "fine", parseFloat(e.target.value) || 0)}
                         onFocus={handleInputFocus}
                         className="w-24 h-8 text-sm"
                       />
@@ -403,8 +434,8 @@ const Index = () => {
               </div>
               <div>
                 <Label htmlFor="cookTotal">
-                  Total Cook Charge (₹)
-                  {cookChargeMode === "perHead" && (
+                  Total Cook Charge (₹) - Optional
+                  {cookChargeMode === "perHead" && totalCookCharge > 0 && (
                     <Badge variant="secondary" className="ml-2 text-xs">Auto-calculated</Badge>
                   )}
                 </Label>
@@ -414,13 +445,13 @@ const Index = () => {
                   value={totalCookCharge}
                   onChange={(e) => handleCookChargeChange(parseFloat(e.target.value) || 0, "total")}
                   onFocus={handleInputFocus}
-                  disabled={cookChargeMode === "perHead"}
+                  placeholder="Enter total or per head"
                 />
               </div>
               <div>
                 <Label htmlFor="cookRate">
-                  Cook Rate per Head (₹)
-                  {cookChargeMode === "total" && (
+                  Cook Rate per Head (₹) - Optional
+                  {cookChargeMode === "total" && cookRatePerHead > 0 && (
                     <Badge variant="secondary" className="ml-2 text-xs">Auto-calculated</Badge>
                   )}
                 </Label>
@@ -430,7 +461,7 @@ const Index = () => {
                   value={cookRatePerHead}
                   onChange={(e) => handleCookChargeChange(parseFloat(e.target.value) || 0, "perHead")}
                   onFocus={handleInputFocus}
-                  disabled={cookChargeMode === "total"}
+                  placeholder="Enter per head or total"
                 />
               </div>
             </div>
@@ -450,12 +481,44 @@ const Index = () => {
         </div>
 
         {/* Results Section */}
-        {results && (
-          <div id="results">
+        {results && overview && (
+          <div id="results" className="space-y-6">
+            {/* Overview Card */}
+            <Card className="shadow-elevated border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calculator className="w-5 h-5" />
+                  Calculation Overview
+                </CardTitle>
+                <CardDescription>Key metrics for this billing period</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-4 gap-4">
+                  <div className="p-4 rounded-lg bg-muted/50">
+                    <div className="text-sm text-muted-foreground mb-1">Total Members</div>
+                    <div className="text-2xl font-bold text-foreground">{overview.totalMembers}</div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-muted/50">
+                    <div className="text-sm text-muted-foreground mb-1">Total Meals</div>
+                    <div className="text-2xl font-bold text-foreground">{overview.totalMeals}</div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-muted/50">
+                    <div className="text-sm text-muted-foreground mb-1">Meal Rate</div>
+                    <div className="text-2xl font-bold text-foreground">₹{overview.mealRate.toFixed(2)}</div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-muted/50">
+                    <div className="text-sm text-muted-foreground mb-1">Establishment Charge</div>
+                    <div className="text-2xl font-bold text-foreground">₹{overview.establishmentCharge.toFixed(2)}</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Individual Bills Card */}
             <Card className="shadow-elevated">
               <CardHeader>
-                <CardTitle>Calculation Results</CardTitle>
-                <CardDescription>Individual bill breakdown for all members</CardDescription>
+                <CardTitle>Individual Bills</CardTitle>
+                <CardDescription>Detailed bill breakdown for all members</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -502,6 +565,12 @@ const Index = () => {
                           <span className="text-muted-foreground">Guest Charges:</span>
                           <span className="font-medium">₹{member.guest.toFixed(2)}</span>
                         </div>
+                        {member.fine > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Fine:</span>
+                            <span className="font-medium text-destructive">₹{member.fine.toFixed(2)}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Deposits:</span>
                           <span className="font-medium">₹{member.deposits.toFixed(2)}</span>
