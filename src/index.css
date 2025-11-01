@@ -119,10 +119,14 @@ All colors MUST be HSL.
     border: 1px solid #e5e7eb !important;
   }
 
+  .print\:mt-4 {
+    margin-top: 1rem !important;
+  }
+
   /* Prevent page breaks inside elements */
   .print\:break-inside-avoid {
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   /* Ensure proper spacing */
@@ -140,6 +144,29 @@ All colors MUST be HSL.
   .shadow-card, .shadow-elevated {
     box-shadow: none !important;
     border: 1px solid #e5e7eb !important;
+  }
+
+  /* Prevent page breaks inside important elements */
+  .card,
+  [class*="Card"],
+  table,
+  .space-y-3 > div,
+  .space-y-4 > div {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Reduce spacing in print */
+  .space-y-6 {
+    gap: 1rem;
+  }
+  
+  .space-y-4 {
+    gap: 0.75rem;
+  }
+
+  .space-y-3 {
+    gap: 0.5rem;
   }
 
   /* Ensure colors are visible in print */

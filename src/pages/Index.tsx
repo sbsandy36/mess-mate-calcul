@@ -174,8 +174,37 @@ const Index = () => {
   };
 
   const printResults = () => {
+    // Set document title for print filename
+    const currentDate = new Date();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const year = String(currentDate.getFullYear()).slice(-2);
+    const originalTitle = document.title;
+    document.title = `Mess Bill_${month}/${year}_DevSan`;
+    
     window.print();
+    
+    // Restore original title after print
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1000);
+    
     toast.success("Opening print dialog");
+  };
+
+  const downloadDefaultMembers = () => {
+    const defaultMembers = [
+      { name: "Member 1", meals: 0, deposits: 0, guest: 0, fine: 0, isGuest: false },
+      { name: "Member 2", meals: 0, deposits: 0, guest: 0, fine: 0, isGuest: false },
+      { name: "Member 3", meals: 0, deposits: 0, guest: 0, fine: 0, isGuest: false }
+    ];
+    const dataStr = JSON.stringify(defaultMembers, null, 2);
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "default-members.json";
+    link.click();
+    toast.success("Default members template downloaded");
   };
 
   const exportData = () => {
@@ -348,7 +377,7 @@ const Index = () => {
               <p className="text-center text-muted-foreground py-8">No members added yet</p>
             )}
 
-            <div className="flex gap-2 mt-4">
+            <div className="flex flex-wrap gap-2 mt-4">
               <Button variant="outline" onClick={exportData} disabled={members.length === 0}>
                 <Download className="w-4 h-4 mr-2" />
                 Export
@@ -364,6 +393,10 @@ const Index = () => {
                     className="hidden"
                   />
                 </label>
+              </Button>
+              <Button variant="outline" onClick={downloadDefaultMembers}>
+                <Download className="w-4 h-4 mr-2" />
+                Download Template
               </Button>
             </div>
           </CardContent>
@@ -502,38 +535,50 @@ const Index = () => {
             </div>
 
             {/* Compact Summary Table */}
-            <Card className="shadow-card print:shadow-none">
+            <Card className="shadow-card print:shadow-none print:break-inside-avoid">
               <CardHeader>
                 <CardTitle>Quick Summary</CardTitle>
                 <CardDescription>At-a-glance view of all member bills</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b">
-                        <th className="text-left p-2 font-semibold">Member</th>
-                        <th className="text-right p-2 font-semibold">Meals</th>
-                        <th className="text-right p-2 font-semibold">Total Bill</th>
-                        <th className="text-right p-2 font-semibold">Outstanding</th>
+                        <th className="text-left p-1.5 font-semibold">Name</th>
+                        <th className="text-right p-1.5 font-semibold">Actual Meals</th>
+                        <th className="text-right p-1.5 font-semibold">Eff. Meals</th>
+                        <th className="text-right p-1.5 font-semibold">Est. Charge</th>
+                        <th className="text-right p-1.5 font-semibold">Total Bill</th>
+                        <th className="text-right p-1.5 font-semibold">Deposits</th>
+                        <th className="text-right p-1.5 font-semibold">Outstanding</th>
                       </tr>
                     </thead>
                     <tbody>
                       {results.map((member) => (
                         <tr key={member.name} className="border-b hover:bg-muted/50">
-                          <td className="p-2">
+                          <td className="p-1.5 text-xs">
                             {member.name}
                             {member.isGuest && (
-                              <Badge variant="secondary" className="ml-2 text-xs">Guest</Badge>
+                              <Badge variant="secondary" className="ml-1 text-[10px] py-0">Guest</Badge>
                             )}
                           </td>
-                          <td className="text-right p-2">
+                          <td className="text-right p-1.5">
+                            {member.isGuest ? "-" : member.meals}
+                          </td>
+                          <td className="text-right p-1.5">
                             {member.isGuest ? "-" : member.effectiveMeals}
                           </td>
-                          <td className="text-right p-2 font-medium">
+                          <td className="text-right p-1.5">
+                            {member.isGuest ? "-" : `₹${member.establishmentCharge.toFixed(2)}`}
+                          </td>
+                          <td className="text-right p-1.5 font-medium">
                             ₹{member.totalBill.toFixed(2)}
                           </td>
-                          <td className={`text-right p-2 font-semibold ${
+                          <td className="text-right p-1.5">
+                            ₹{member.deposits.toFixed(2)}
+                          </td>
+                          <td className={`text-right p-1.5 font-semibold ${
                             member.outstanding > 0 ? "text-destructive" : "text-success"
                           }`}>
                             ₹{member.outstanding.toFixed(2)}
@@ -547,7 +592,7 @@ const Index = () => {
             </Card>
 
             {/* Overview Card */}
-            <Card className="shadow-elevated border-primary/20 print:shadow-none print:border">
+            <Card className="shadow-elevated border-primary/20 print:shadow-none print:border print:break-inside-avoid">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calculator className="w-5 h-5" />
@@ -556,62 +601,64 @@ const Index = () => {
                 <CardDescription>Key metrics for this billing period</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-4 gap-4">
-                  <div className="p-4 rounded-lg bg-muted/50">
-                    <div className="text-sm text-muted-foreground mb-1">Total Members</div>
-                    <div className="text-2xl font-bold text-foreground">{overview.totalMembers}</div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="p-3 rounded-lg bg-muted/50">
+                    <div className="text-xs text-muted-foreground mb-1">Total Members</div>
+                    <div className="text-xl font-bold text-foreground">{overview.totalMembers}</div>
                   </div>
-                  <div className="p-4 rounded-lg bg-muted/50">
-                    <div className="text-sm text-muted-foreground mb-1">Total Meals</div>
-                    <div className="text-2xl font-bold text-foreground">{overview.totalMeals}</div>
+                  <div className="p-3 rounded-lg bg-muted/50">
+                    <div className="text-xs text-muted-foreground mb-1">Total Meals</div>
+                    <div className="text-xl font-bold text-foreground">{overview.totalMeals}</div>
                   </div>
-                  <div className="p-4 rounded-lg bg-muted/50">
-                    <div className="text-sm text-muted-foreground mb-1">Meal Rate</div>
-                    <div className="text-2xl font-bold text-foreground">₹{overview.mealRate.toFixed(2)}</div>
+                  <div className="p-3 rounded-lg bg-muted/50">
+                    <div className="text-xs text-muted-foreground mb-1">Meal Rate</div>
+                    <div className="text-xl font-bold text-foreground">₹{overview.mealRate.toFixed(2)}</div>
                   </div>
-                  <div className="p-4 rounded-lg bg-muted/50">
-                    <div className="text-sm text-muted-foreground mb-1">Establishment Charge</div>
-                    <div className="text-2xl font-bold text-foreground">₹{overview.establishmentCharge.toFixed(2)}</div>
+                  <div className="p-3 rounded-lg bg-muted/50">
+                    <div className="text-xs text-muted-foreground mb-1">Est. Charge</div>
+                    <div className="text-xl font-bold text-foreground">₹{overview.establishmentCharge.toFixed(2)}</div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Individual Bills Card */}
-            <Card className="shadow-elevated">
-              <CardHeader>
-                <CardTitle>Individual Bills</CardTitle>
-                <CardDescription>Detailed bill breakdown for all members</CardDescription>
+            <Card className="shadow-elevated print:break-inside-avoid">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Individual Bills</CardTitle>
+                <CardDescription className="text-xs">Detailed bill breakdown for all members</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {results.map((member) => (
-                    <div key={member.name} className="border rounded-lg p-4 hover:shadow-sm transition-shadow">
-                      <div className="flex justify-between items-start mb-3">
+                    <div key={member.name} className="border rounded-lg p-3 hover:shadow-sm transition-shadow print:break-inside-avoid">
+                      <div className="flex justify-between items-start mb-2">
                         <div>
-                          <h3 className="font-semibold text-lg">{member.name}</h3>
-                          {member.isGuest && (
-                            <Badge variant="secondary">Guest Only</Badge>
-                          )}
-                          {!member.isGuest && member.effectiveMeals > member.meals && (
-                            <Badge variant="outline" className="ml-2">Min. meals applied</Badge>
-                          )}
+                          <h3 className="font-semibold text-base">{member.name}</h3>
+                          <div className="flex gap-1 mt-1">
+                            {member.isGuest && (
+                              <Badge variant="secondary" className="text-[10px] py-0">Guest Only</Badge>
+                            )}
+                            {!member.isGuest && member.effectiveMeals > member.meals && (
+                              <Badge variant="outline" className="text-[10px] py-0">Min. applied</Badge>
+                            )}
+                          </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-sm text-muted-foreground">Outstanding</div>
-                          <div className={`text-2xl font-bold ${
+                          <div className="text-[10px] text-muted-foreground">Outstanding</div>
+                          <div className={`text-lg font-bold ${
                             member.outstanding > 0 ? "text-destructive" : "text-success"
                           }`}>
                             ₹{member.outstanding.toFixed(2)}
                           </div>
                         </div>
                       </div>
-                      <Separator className="my-3" />
-                      <div className="grid md:grid-cols-2 gap-2 text-sm">
+                      <Separator className="my-2" />
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                         {!member.isGuest && (
                           <>
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Effective Meals:</span>
+                              <span className="text-muted-foreground">Eff. Meals:</span>
                               <span className="font-medium">{member.effectiveMeals}</span>
                             </div>
                             <div className="flex justify-between">
@@ -619,13 +666,13 @@ const Index = () => {
                               <span className="font-medium">₹{member.mealCost.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Establishment Charge:</span>
+                              <span className="text-muted-foreground">Est. Charge:</span>
                               <span className="font-medium">₹{member.establishmentCharge.toFixed(2)}</span>
                             </div>
                           </>
                         )}
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Guest Charges:</span>
+                          <span className="text-muted-foreground">Guest:</span>
                           <span className="font-medium">₹{member.guest.toFixed(2)}</span>
                         </div>
                         {member.fine > 0 && (
@@ -638,7 +685,7 @@ const Index = () => {
                           <span className="text-muted-foreground">Deposits:</span>
                           <span className="font-medium">₹{member.deposits.toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between font-semibold pt-2 border-t">
+                        <div className="flex justify-between font-semibold pt-1 border-t col-span-2">
                           <span>Total Bill:</span>
                           <span>₹{member.totalBill.toFixed(2)}</span>
                         </div>
@@ -650,6 +697,11 @@ const Index = () => {
             </Card>
           </div>
         )}
+
+        {/* Footer */}
+        <footer className="text-center py-6 mt-8 text-sm text-muted-foreground print:mt-4">
+          Crafted with ❤️ by <span className="font-semibold text-foreground">DevSan (Sandipan Bera)</span>
+        </footer>
       </div>
     </div>
   );
