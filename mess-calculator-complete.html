@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santiniketan Mess Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #667eea;
+        }
+
+        .card-description {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-calculate {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+        }
+
+        .member-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .member-item:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+        }
+
+        .member-name {
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .member-inputs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .member-input-small {
+            width: 80px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-success {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .text-danger {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-left: 5px;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .overview-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .overview-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .overview-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .bill-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+
+        .bill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .bill-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .bill-outstanding {
+            text-align: right;
+        }
+
+        .bill-outstanding-label {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .bill-outstanding-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .bill-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .bill-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .bill-total {
+            font-weight: 700;
+            border-top: 2px solid #e0e0e0;
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .checkbox-label:hover {
+            background: #f5f5f5;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .separator {
+            border: 0;
+            border-top: 1px solid #e0e0e0;
+            margin: 12px 0;
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 1cm;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .card {
+                page-break-inside: avoid;
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+                margin-bottom: 10px;
+            }
+
+            .bill-item {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            table {
+                page-break-inside: avoid;
+            }
+
+            .header {
+                color: #667eea;
+            }
+
+            .text-danger {
+                color: #dc2626 !important;
+            }
+
+            .text-success {
+                color: #16a34a !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .member-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .member-inputs {
+                width: 100%;
+            }
+
+            .bill-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .bill-outstanding {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-icon">
+                <svg width="32" height="32" fill="white" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14h-2v-4H8v-2h4V7h2v4h4v2h-4v4z"/></svg>
+            </div>
+            <h1>Santiniketan Mess Calculator</h1>
+            <p class="subtitle">Transparent hostel bill management & calculation</p>
+        </div>
+
+        <!-- Members Section -->
+        <div class="card">
+            <h2 class="card-title">Members Management</h2>
+            <p class="card-description">Add and manage mess members</p>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                <input type="text" id="newMemberName" placeholder="Member name" style="flex: 1; min-width: 200px;">
+                <label class="checkbox-label" style="width: auto;">
+                    <input type="checkbox" id="isGuestMember">
+                    <span>Guest Only</span>
+                </label>
+                <button class="btn" onclick="addMember()">Add Member</button>
+            </div>
+
+            <div id="membersList"></div>
+
+            <div style="margin-top: 20px;">
+                <button class="btn btn-outline no-print" onclick="exportMembers()">Export Members</button>
+                <button class="btn btn-outline no-print" onclick="document.getElementById('importFile').click()">Import Members</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importMembers(event)">
+                <button class="btn btn-outline no-print" onclick="downloadTemplate()">Download Template</button>
+            </div>
+        </div>
+
+        <!-- Expenses Section -->
+        <div class="card">
+            <h2 class="card-title">Expenses</h2>
+            <p class="card-description">Enter all mess expenses for the period</p>
+            
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Rice Cost (₹)</label>
+                    <input type="number" id="riceCost" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label>Marketing Cost (₹)</label>
+                    <input type="number" id="marketingCost" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label>Gas Cost (₹)</label>
+                    <input type="number" id="gasCost" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label>Paper Cost (₹)</label>
+                    <input type="number" id="paperCost" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label>Other Costs (₹)</label>
+                    <input type="number" id="otherCosts" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label>Bound Meal (Minimum Meals)</label>
+                    <input type="number" id="boundMeal" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label>Total Cook Charge (₹) - Optional</label>
+                    <input type="number" id="totalCookCharge" placeholder="0" oninput="updateCookCharge('total')">
+                </div>
+                <div class="input-group">
+                    <label>Cook Rate per Head (₹) - Optional</label>
+                    <input type="number" id="cookRatePerHead" placeholder="0" oninput="updateCookCharge('perHead')">
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculate Button -->
+        <div class="text-center no-print" style="margin: 30px 0;">
+            <button class="btn btn-calculate" onclick="calculateBills()">Calculate Bills</button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="hidden">
+            <!-- Print Button -->
+            <div class="text-center no-print" style="margin-bottom: 20px;">
+                <button class="btn" onclick="printResults()">🖨️ Print / Save as PDF</button>
+            </div>
+
+            <!-- Quick Summary -->
+            <div class="card">
+                <h2 class="card-title">Quick Summary</h2>
+                <p class="card-description">At-a-glance view of all member bills</p>
+                <div style="overflow-x: auto;">
+                    <table id="summaryTable"></table>
+                </div>
+            </div>
+
+            <!-- Overview -->
+            <div class="card">
+                <h2 class="card-title">Calculation Overview</h2>
+                <p class="card-description">Key metrics for this billing period</p>
+                <div class="overview-grid" id="overview"></div>
+            </div>
+
+            <!-- Individual Bills -->
+            <div class="card">
+                <h2 class="card-title">Individual Bills</h2>
+                <p class="card-description">Detailed bill breakdown for all members</p>
+                <div id="individualBills"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            Crafted with ❤️ by <strong>DevSan (Sandipan Bera)</strong>
+        </footer>
+    </div>
+
+    <script>
+        let members = [];
+
+        // Load members from localStorage
+        window.onload = function() {
+            const saved = localStorage.getItem('mess-members');
+            if (saved) {
+                try {
+                    members = JSON.parse(saved);
+                    renderMembers();
+                } catch (e) {
+                    console.error('Failed to load saved data');
+                }
+            }
+        };
+
+        function saveMembers() {
+            localStorage.setItem('mess-members', JSON.stringify(members));
+        }
+
+        function addMember() {
+            const name = document.getElementById('newMemberName').value.trim();
+            const isGuest = document.getElementById('isGuestMember').checked;
+            
+            if (!name) {
+                alert('Please enter a member name');
+                return;
+            }
+            
+            if (members.some(m => m.name.toLowerCase() === name.toLowerCase())) {
+                alert('Member already exists');
+                return;
+            }
+            
+            members.push({
+                name: name,
+                meals: 0,
+                deposits: 0,
+                guest: 0,
+                fine: 0,
+                isGuest: isGuest
+            });
+            
+            document.getElementById('newMemberName').value = '';
+            document.getElementById('isGuestMember').checked = false;
+            saveMembers();
+            renderMembers();
+        }
+
+        function removeMember(name) {
+            if (confirm(`Remove ${name}?`)) {
+                members = members.filter(m => m.name !== name);
+                saveMembers();
+                renderMembers();
+            }
+        }
+
+        function updateMember(name, field, value) {
+            const member = members.find(m => m.name === name);
+            if (member) {
+                member[field] = parseFloat(value || '0') || 0;
+                saveMembers();
+            }
+        }
+
+        function renderMembers() {
+            const list = document.getElementById('membersList');
+            if (members.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #666; padding: 30px;">No members added yet. Add your first member to get started!</p>';
+                return;
+            }
+            
+            list.innerHTML = members.map(m => `
+                <div class="member-item">
+                    <div class="member-name">
+                        ${m.name}
+                        ${m.isGuest ? '<span class="badge">Guest Only</span>' : ''}
+                    </div>
+                    <div class="member-inputs">
+                        ${!m.isGuest ? `
+                        <div>
+                            <label style="font-size: 0.75rem; margin-bottom: 2px;">Meals</label>
+                            <input type="number" class="member-input-small" value="${m.meals}" 
+                                oninput="updateMember('${m.name}', 'meals', this.value)" placeholder="0">
+                        </div>
+                        ` : ''}
+                        <div>
+                            <label style="font-size: 0.75rem; margin-bottom: 2px;">Deposit ₹</label>
+                            <input type="number" class="member-input-small" value="${m.deposits}" 
+                                oninput="updateMember('${m.name}', 'deposits', this.value)" placeholder="0">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; margin-bottom: 2px;">Guest ₹</label>
+                            <input type="number" class="member-input-small" value="${m.guest}" 
+                                oninput="updateMember('${m.name}', 'guest', this.value)" placeholder="0">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; margin-bottom: 2px;">Fine ₹</label>
+                            <input type="number" class="member-input-small" value="${m.fine}" 
+                                oninput="updateMember('${m.name}', 'fine', this.value)" placeholder="0">
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" onclick="removeMember('${m.name}')" 
+                        style="padding: 8px 12px; margin: 0;">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function updateCookCharge(mode) {
+            const nonGuestCount = members.filter(m => !m.isGuest).length;
+            if (nonGuestCount === 0) return;
+            
+            if (mode === 'total') {
+                const total = parseFloat(document.getElementById('totalCookCharge').value || '0') || 0;
+                document.getElementById('cookRatePerHead').value = total > 0 ? (total / nonGuestCount).toFixed(2) : '';
+            } else {
+                const perHead = parseFloat(document.getElementById('cookRatePerHead').value || '0') || 0;
+                document.getElementById('totalCookCharge').value = perHead > 0 ? (perHead * nonGuestCount).toFixed(2) : '';
+            }
+        }
+
+        function calculateBills() {
+            if (members.length === 0) {
+                alert('Please add at least one member');
+                return;
+            }
+
+            const nonGuestMembers = members.filter(m => !m.isGuest);
+            if (nonGuestMembers.length === 0) {
+                alert('At least one non-guest member is required');
+                return;
+            }
+
+            // Get expenses - all default to 0 if blank
+            const riceCost = parseFloat(document.getElementById('riceCost').value || '0') || 0;
+            const marketingCost = parseFloat(document.getElementById('marketingCost').value || '0') || 0;
+            const gasCost = parseFloat(document.getElementById('gasCost').value || '0') || 0;
+            const paperCost = parseFloat(document.getElementById('paperCost').value || '0') || 0;
+            const otherCosts = parseFloat(document.getElementById('otherCosts').value || '0') || 0;
+            const totalCookCharge = parseFloat(document.getElementById('totalCookCharge').value || '0') || 0;
+            const boundMeal = parseFloat(document.getElementById('boundMeal').value || '0') || 0;
+
+            // Calculate totals
+            const totalMarketing = riceCost + marketingCost + gasCost;
+            const totalOthers = totalCookCharge + paperCost + otherCosts;
+            const totalGuestCharge = members.reduce((sum, m) => sum + m.guest, 0);
+
+            // Calculate effective meals
+            const results = members.map(m => {
+                const effectiveMeals = m.isGuest ? 0 : Math.max(m.meals, boundMeal);
+                return { ...m, effectiveMeals };
+            });
+
+            const totalMeals = results.reduce((sum, m) => sum + m.effectiveMeals, 0);
+            if (totalMeals === 0) {
+                alert('Total meals cannot be zero. Please enter meal counts for members.');
+                return;
+            }
+
+            const mealRate = (totalMarketing - totalGuestCharge) / totalMeals;
+            const establishmentCharge = totalOthers / nonGuestMembers.length;
+
+            // Calculate individual bills
+            const bills = results.map(m => {
+                const mealCost = m.effectiveMeals * mealRate;
+                const estCharge = m.isGuest ? 0 : establishmentCharge;
+                const totalBill = mealCost + estCharge + m.guest + m.fine;
+                const outstanding = Math.round(totalBill - m.deposits);
+                
+                return {
+                    ...m,
+                    mealCost,
+                    establishmentCharge: estCharge,
+                    totalBill,
+                    outstanding
+                };
+            });
+
+            // Render results
+            renderSummary(bills);
+            renderOverview({
+                totalMembers: nonGuestMembers.length,
+                totalMeals,
+                mealRate,
+                establishmentCharge
+            });
+            renderIndividualBills(bills);
+
+            document.getElementById('results').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+
+        function renderSummary(bills) {
+            const table = document.getElementById('summaryTable');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th class="text-right">Actual Meals</th>
+                        <th class="text-right">Eff. Meals</th>
+                        <th class="text-right">Est. Charge (₹)</th>
+                        <th class="text-right">Total Bill (₹)</th>
+                        <th class="text-right">Deposits (₹)</th>
+                        <th class="text-right">Outstanding (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${bills.map(m => `
+                        <tr>
+                            <td><strong>${m.name}</strong> ${m.isGuest ? '<span class="badge">Guest</span>' : ''}</td>
+                            <td class="text-right">${m.isGuest ? '-' : m.meals}</td>
+                            <td class="text-right">${m.isGuest ? '-' : m.effectiveMeals}</td>
+                            <td class="text-right">${m.isGuest ? '-' : '₹' + m.establishmentCharge.toFixed(2)}</td>
+                            <td class="text-right"><strong>₹${m.totalBill.toFixed(2)}</strong></td>
+                            <td class="text-right">₹${m.deposits.toFixed(2)}</td>
+                            <td class="text-right ${m.outstanding > 0 ? 'text-danger' : 'text-success'}">
+                                <strong>₹${m.outstanding.toFixed(2)}</strong>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            `;
+        }
+
+        function renderOverview(data) {
+            const overview = document.getElementById('overview');
+            overview.innerHTML = `
+                <div class="overview-item">
+                    <div class="overview-label">Total Members</div>
+                    <div class="overview-value">${data.totalMembers}</div>
+                </div>
+                <div class="overview-item">
+                    <div class="overview-label">Total Meals</div>
+                    <div class="overview-value">${data.totalMeals}</div>
+                </div>
+                <div class="overview-item">
+                    <div class="overview-label">Meal Rate</div>
+                    <div class="overview-value">₹${data.mealRate.toFixed(2)}</div>
+                </div>
+                <div class="overview-item">
+                    <div class="overview-label">Est. Charge</div>
+                    <div class="overview-value">₹${data.establishmentCharge.toFixed(2)}</div>
+                </div>
+            `;
+        }
+
+        function renderIndividualBills(bills) {
+            const container = document.getElementById('individualBills');
+            container.innerHTML = bills.map(m => `
+                <div class="bill-item">
+                    <div class="bill-header">
+                        <div>
+                            <div class="bill-name">
+                                ${m.name}
+                                ${m.isGuest ? '<span class="badge">Guest Only</span>' : ''}
+                                ${!m.isGuest && m.effectiveMeals > m.meals ? '<span class="badge">Min. applied</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="bill-outstanding">
+                            <div class="bill-outstanding-label">Outstanding</div>
+                            <div class="bill-outstanding-value ${m.outstanding > 0 ? 'text-danger' : 'text-success'}">
+                                ₹${m.outstanding.toFixed(2)}
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="separator">
+                    <div class="bill-details">
+                        ${!m.isGuest ? `
+                        <div class="bill-row">
+                            <span>Effective Meals:</span>
+                            <span><strong>${m.effectiveMeals}</strong></span>
+                        </div>
+                        <div class="bill-row">
+                            <span>Meal Cost:</span>
+                            <span><strong>₹${m.mealCost.toFixed(2)}</strong></span>
+                        </div>
+                        <div class="bill-row">
+                            <span>Est. Charge:</span>
+                            <span><strong>₹${m.establishmentCharge.toFixed(2)}</strong></span>
+                        </div>
+                        ` : ''}
+                        ${m.guest > 0 ? `
+                        <div class="bill-row">
+                            <span>Guest Charge:</span>
+                            <span><strong>₹${m.guest.toFixed(2)}</strong></span>
+                        </div>
+                        ` : ''}
+                        ${m.fine > 0 ? `
+                        <div class="bill-row">
+                            <span>Fine:</span>
+                            <span class="text-danger"><strong>₹${m.fine.toFixed(2)}</strong></span>
+                        </div>
+                        ` : ''}
+                        <div class="bill-row">
+                            <span>Deposits:</span>
+                            <span><strong>₹${m.deposits.toFixed(2)}</strong></span>
+                        </div>
+                        <div class="bill-row bill-total">
+                            <span>Total Bill:</span>
+                            <span><strong>₹${m.totalBill.toFixed(2)}</strong></span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function printResults() {
+            // Set document title for print filename
+            const date = new Date();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = String(date.getFullYear()).slice(-2);
+            const originalTitle = document.title;
+            document.title = `Mess Bill_${month}/${year}_DevSan`;
+            
+            window.print();
+            
+            // Restore original title after print
+            setTimeout(() => {
+                document.title = originalTitle;
+            }, 1000);
+        }
+
+        function exportMembers() {
+            if (members.length === 0) {
+                alert('No members to export');
+                return;
+            }
+            const dataStr = JSON.stringify(members, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'mess-members.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importMembers(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data) && data.length > 0) {
+                        // Validate data structure
+                        const isValid = data.every(m => 
+                            m.name && 
+                            typeof m.meals === 'number' && 
+                            typeof m.deposits === 'number' && 
+                            typeof m.guest === 'number'
+                        );
+                        
+                        if (isValid) {
+                            members = data.map(m => ({
+                                name: m.name,
+                                meals: m.meals || 0,
+                                deposits: m.deposits || 0,
+                                guest: m.guest || 0,
+                                fine: m.fine || 0,
+                                isGuest: m.isGuest || false
+                            }));
+                            saveMembers();
+                            renderMembers();
+                            alert('Members imported successfully!');
+                        } else {
+                            alert('Invalid file format. Please check the data structure.');
+                        }
+                    } else {
+                        alert('Invalid file format. File must contain an array of members.');
+                    }
+                } catch (error) {
+                    alert('Failed to import data. Please check the file format.');
+                    console.error(error);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Reset file input
+        }
+
+        function downloadTemplate() {
+            const template = [
+                { name: 'Member 1', meals: 0, deposits: 0, guest: 0, fine: 0, isGuest: false },
+                { name: 'Member 2', meals: 0, deposits: 0, guest: 0, fine: 0, isGuest: false },
+                { name: 'Member 3', meals: 0, deposits: 0, guest: 0, fine: 0, isGuest: false }
+            ];
+            const dataStr = JSON.stringify(template, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'default-members.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
