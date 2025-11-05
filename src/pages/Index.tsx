@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, Download, Upload, Trash2, UserPlus, Users, Printer } from "lucide-react";
+import { Calculator, Download, Upload, Trash2, UserPlus, Users, Printer, Share2, History } from "lucide-react";
 import { toast } from "sonner";
 
 interface Member {
@@ -32,6 +32,23 @@ interface OverviewData {
   establishmentCharge: number;
 }
 
+interface CalculationHistory {
+  id: string;
+  date: string;
+  members: Member[];
+  expenses: {
+    riceCost: number;
+    marketingCost: number;
+    gasCost: number;
+    paperCost: number;
+    otherCosts: number;
+    totalCookCharge: number;
+    boundMeal: number;
+  };
+  results: BillResult[];
+  overview: OverviewData;
+}
+
 const Index = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [newMember, setNewMember] = useState("");
@@ -52,6 +69,8 @@ const Index = () => {
   
   const [results, setResults] = useState<BillResult[] | null>(null);
   const [overview, setOverview] = useState<OverviewData | null>(null);
+  const [history, setHistory] = useState<CalculationHistory[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
 
   // Load from localStorage
   useEffect(() => {
@@ -61,6 +80,15 @@ const Index = () => {
         setMembers(JSON.parse(saved));
       } catch (e) {
         console.error("Failed to load members", e);
+      }
+    }
+    
+    const savedHistory = localStorage.getItem("hostel-calculation-history");
+    if (savedHistory) {
+      try {
+        setHistory(JSON.parse(savedHistory));
+      } catch (e) {
+        console.error("Failed to load history", e);
       }
     }
   }, []);
@@ -165,6 +193,34 @@ const Index = () => {
     });
 
     setResults(billResults);
+    
+    // Save to history
+    const newHistoryEntry: CalculationHistory = {
+      id: Date.now().toString(),
+      date: new Date().toISOString(),
+      members: [...members],
+      expenses: {
+        riceCost,
+        marketingCost,
+        gasCost,
+        paperCost,
+        otherCosts,
+        totalCookCharge,
+        boundMeal
+      },
+      results: billResults,
+      overview: {
+        totalMeals,
+        mealRate,
+        totalMembers: nonGuestMembers.length,
+        establishmentCharge
+      }
+    };
+    
+    const updatedHistory = [newHistoryEntry, ...history].slice(0, 10); // Keep last 10 calculations
+    setHistory(updatedHistory);
+    localStorage.setItem("hostel-calculation-history", JSON.stringify(updatedHistory));
+    
     toast.success("Bills calculated successfully");
     
     // Scroll to results
@@ -189,6 +245,67 @@ const Index = () => {
     }, 1000);
     
     toast.success("Opening print dialog");
+  };
+
+  const shareViaWhatsApp = () => {
+    if (!results || !overview) return;
+    
+    const currentDate = new Date();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const year = currentDate.getFullYear();
+    
+    let message = `*🍽️ Mess Bill Summary - ${month}/${year}*\n\n`;
+    message += `*Overview:*\n`;
+    message += `Total Members: ${overview.totalMembers}\n`;
+    message += `Total Meals: ${overview.totalMeals}\n`;
+    message += `Meal Rate: ₹${overview.mealRate.toFixed(2)}\n`;
+    message += `Est. Charge: ₹${overview.establishmentCharge.toFixed(2)}\n\n`;
+    message += `*Individual Bills:*\n`;
+    message += `━━━━━━━━━━━━━━━━\n`;
+    
+    results.forEach((member) => {
+      message += `\n*${member.name}*${member.isGuest ? ' (Guest)' : ''}\n`;
+      if (!member.isGuest) {
+        message += `Meals: ${member.effectiveMeals} | Cost: ₹${member.mealCost.toFixed(2)}\n`;
+        message += `Est. Charge: ₹${member.establishmentCharge.toFixed(2)}\n`;
+      }
+      if (member.guest > 0) message += `Guest: ₹${member.guest.toFixed(2)}\n`;
+      if (member.fine > 0) message += `Fine: ₹${member.fine.toFixed(2)}\n`;
+      message += `Deposits: ₹${member.deposits.toFixed(2)}\n`;
+      message += `*Total: ₹${member.totalBill.toFixed(2)}*\n`;
+      message += `*Outstanding: ₹${member.outstanding.toFixed(2)}*\n`;
+    });
+    
+    message += `\n━━━━━━━━━━━━━━━━\n`;
+    message += `Crafted with ❤️ by DevSan`;
+    
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+    toast.success("Opening WhatsApp");
+  };
+
+  const loadHistoryEntry = (entry: CalculationHistory) => {
+    setMembers(entry.members);
+    setRiceCost(entry.expenses.riceCost);
+    setMarketingCost(entry.expenses.marketingCost);
+    setGasCost(entry.expenses.gasCost);
+    setPaperCost(entry.expenses.paperCost);
+    setOtherCosts(entry.expenses.otherCosts);
+    setTotalCookCharge(entry.expenses.totalCookCharge);
+    setBoundMeal(entry.expenses.boundMeal);
+    setResults(entry.results);
+    setOverview(entry.overview);
+    setShowHistory(false);
+    toast.success("History loaded");
+    setTimeout(() => {
+      document.getElementById("results")?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
+
+  const clearHistory = () => {
+    setHistory([]);
+    localStorage.removeItem("hostel-calculation-history");
+    toast.success("History cleared");
   };
 
   const downloadDefaultMembers = () => {
@@ -506,8 +623,8 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        {/* Calculate Button */}
-        <div className="text-center mb-8">
+        {/* Calculate and History Buttons */}
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-8">
           <Button 
             size="lg" 
             onClick={calculateBills}
@@ -516,13 +633,68 @@ const Index = () => {
             <Calculator className="w-5 h-5 mr-2" />
             Calculate Bills
           </Button>
+          <Button 
+            variant="outline"
+            size="lg"
+            onClick={() => setShowHistory(!showHistory)}
+            className="hover:bg-primary/10 hover:border-primary hover:scale-105 transition-all duration-200"
+          >
+            <History className="w-5 h-5 mr-2" />
+            History ({history.length})
+          </Button>
         </div>
+
+        {/* History Section */}
+        {showHistory && history.length > 0 && (
+          <Card className="mb-6 shadow-card">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>Calculation History</CardTitle>
+                  <CardDescription>View and load past calculations</CardDescription>
+                </div>
+                <Button variant="destructive" size="sm" onClick={clearHistory}>
+                  Clear All
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {history.map((entry) => (
+                  <div key={entry.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-3 border rounded-lg hover:shadow-sm transition-shadow">
+                    <div className="flex-1">
+                      <div className="font-medium text-sm">
+                        {new Date(entry.date).toLocaleDateString('en-IN', { 
+                          day: '2-digit', 
+                          month: 'short', 
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {entry.results.length} members • ₹{entry.overview.mealRate.toFixed(2)}/meal
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      onClick={() => loadHistoryEntry(entry)}
+                      className="hover:scale-105 transition-transform"
+                    >
+                      Load
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Results Section */}
         {results && overview && (
           <div id="results" className="space-y-6">
-            {/* Print Button */}
-            <div className="text-center print:hidden">
+            {/* Action Buttons */}
+            <div className="flex flex-wrap justify-center gap-3 print:hidden">
               <Button 
                 variant="outline"
                 size="lg" 
@@ -531,6 +703,15 @@ const Index = () => {
               >
                 <Printer className="w-5 h-5" />
                 Print / Save as PDF
+              </Button>
+              <Button 
+                variant="outline"
+                size="lg" 
+                onClick={shareViaWhatsApp}
+                className="gap-2 hover:bg-success/10 hover:border-success hover:scale-105 transition-all duration-200"
+              >
+                <Share2 className="w-5 h-5" />
+                Share via WhatsApp
               </Button>
             </div>
 
@@ -622,76 +803,81 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            {/* Individual Bills Card */}
+            {/* Individual Bills Table */}
             <Card className="shadow-elevated print:break-inside-avoid">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base sm:text-lg">Individual Bills</CardTitle>
                 <CardDescription className="text-xs">Detailed breakdown</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {results.map((member) => (
-                    <div key={member.name} className="border rounded-lg p-2 sm:p-3 hover:shadow-sm transition-shadow print:break-inside-avoid">
-                      <div className="flex justify-between items-start mb-1.5">
-                        <div>
-                          <h3 className="font-semibold text-sm sm:text-base">{member.name}</h3>
-                          <div className="flex gap-1 mt-0.5">
-                            {member.isGuest && (
-                              <Badge variant="secondary" className="text-[9px] sm:text-[10px] py-0 px-1">Guest</Badge>
-                            )}
-                            {!member.isGuest && member.effectiveMeals > member.meals && (
-                              <Badge variant="outline" className="text-[9px] sm:text-[10px] py-0 px-1">Min</Badge>
-                            )}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-[9px] sm:text-[10px] text-muted-foreground">Outstanding</div>
-                          <div className={`text-base sm:text-lg font-bold ${
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b-2 border-border">
+                        <th className="text-left p-2 font-semibold">Name</th>
+                        <th className="text-right p-2 font-semibold hidden sm:table-cell">Meals</th>
+                        <th className="text-right p-2 font-semibold hidden sm:table-cell">M.Cost</th>
+                        <th className="text-right p-2 font-semibold hidden sm:table-cell">Est.</th>
+                        <th className="text-right p-2 font-semibold hidden sm:table-cell">Guest</th>
+                        <th className="text-right p-2 font-semibold hidden sm:table-cell">Fine</th>
+                        <th className="text-right p-2 font-semibold hidden sm:table-cell">Dep.</th>
+                        <th className="text-right p-2 font-semibold">Total</th>
+                        <th className="text-right p-2 font-semibold">Outstanding</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {results.map((member) => (
+                        <tr key={member.name} className="border-b border-border hover:bg-muted/30 transition-colors print:break-inside-avoid">
+                          <td className="p-2">
+                            <div className="font-medium">{member.name}</div>
+                            <div className="flex gap-1 mt-0.5">
+                              {member.isGuest && (
+                                <Badge variant="secondary" className="text-[8px] py-0 px-1">G</Badge>
+                              )}
+                              {!member.isGuest && member.effectiveMeals > member.meals && (
+                                <Badge variant="outline" className="text-[8px] py-0 px-1">Min</Badge>
+                              )}
+                            </div>
+                            {/* Mobile view details */}
+                            <div className="sm:hidden text-[10px] text-muted-foreground mt-1 space-y-0.5">
+                              {!member.isGuest && (
+                                <div>M: {member.effectiveMeals} • C: ₹{member.mealCost.toFixed(2)} • E: ₹{member.establishmentCharge.toFixed(2)}</div>
+                              )}
+                              <div>G: ₹{member.guest.toFixed(2)} • F: ₹{member.fine.toFixed(2)} • D: ₹{member.deposits.toFixed(2)}</div>
+                            </div>
+                          </td>
+                          <td className="text-right p-2 hidden sm:table-cell">
+                            {member.isGuest ? "-" : member.effectiveMeals}
+                          </td>
+                          <td className="text-right p-2 hidden sm:table-cell">
+                            {member.isGuest ? "-" : `₹${member.mealCost.toFixed(2)}`}
+                          </td>
+                          <td className="text-right p-2 hidden sm:table-cell">
+                            {member.isGuest ? "-" : `₹${member.establishmentCharge.toFixed(2)}`}
+                          </td>
+                          <td className="text-right p-2 hidden sm:table-cell">
+                            ₹{member.guest.toFixed(2)}
+                          </td>
+                          <td className="text-right p-2 hidden sm:table-cell">
+                            {member.fine > 0 ? (
+                              <span className="text-destructive">₹{member.fine.toFixed(2)}</span>
+                            ) : "-"}
+                          </td>
+                          <td className="text-right p-2 hidden sm:table-cell">
+                            ₹{member.deposits.toFixed(2)}
+                          </td>
+                          <td className="text-right p-2 font-semibold">
+                            ₹{member.totalBill.toFixed(2)}
+                          </td>
+                          <td className={`text-right p-2 font-bold ${
                             member.outstanding > 0 ? "text-destructive" : "text-success"
                           }`}>
                             ₹{member.outstanding.toFixed(2)}
-                          </div>
-                        </div>
-                      </div>
-                      <Separator className="my-1.5" />
-                      <div className="grid grid-cols-2 gap-x-2 sm:gap-x-4 gap-y-0.5 text-[10px] sm:text-xs">
-                        {!member.isGuest && (
-                          <>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Meals:</span>
-                              <span className="font-medium">{member.effectiveMeals}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Cost:</span>
-                              <span className="font-medium">₹{member.mealCost.toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Est.:</span>
-                              <span className="font-medium">₹{member.establishmentCharge.toFixed(2)}</span>
-                            </div>
-                          </>
-                        )}
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Guest:</span>
-                          <span className="font-medium">₹{member.guest.toFixed(2)}</span>
-                        </div>
-                        {member.fine > 0 && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Fine:</span>
-                            <span className="font-medium text-destructive">₹{member.fine.toFixed(2)}</span>
-                          </div>
-                        )}
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Deposits:</span>
-                          <span className="font-medium">₹{member.deposits.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between font-semibold pt-0.5 border-t col-span-2 text-xs sm:text-sm">
-                          <span>Total:</span>
-                          <span>₹{member.totalBill.toFixed(2)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </CardContent>
             </Card>
