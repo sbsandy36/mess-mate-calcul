@@ -302,7 +302,7 @@ const Index = () => {
                 />
                 <span className="text-sm">Guest Only</span>
               </label>
-              <Button onClick={addMember}>
+              <Button onClick={addMember} className="hover:scale-105 transition-transform duration-200">
                 <UserPlus className="w-4 h-4 mr-2" />
                 Add
               </Button>
@@ -310,54 +310,54 @@ const Index = () => {
 
             <div className="space-y-2">
               {members.map((member) => (
-                <div key={member.name} className="flex items-center gap-2 p-3 border rounded-lg hover:shadow-sm transition-shadow">
-                  <div className="flex-1 font-medium">
+                <div key={member.name} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-2 sm:p-3 border rounded-lg hover:shadow-sm transition-shadow">
+                  <div className="flex-1 min-w-0 font-medium text-sm sm:text-base">
                     {member.name}
                     {member.isGuest && (
-                      <Badge variant="secondary" className="ml-2">Guest Only</Badge>
+                      <Badge variant="secondary" className="ml-2 text-xs">Guest</Badge>
                     )}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 w-full sm:w-auto">
                     {!member.isGuest && (
                       <div className="flex items-center gap-1">
-                        <Label className="text-xs text-muted-foreground">Meals:</Label>
+                        <Label className="text-xs text-muted-foreground whitespace-nowrap">Meals:</Label>
                         <Input
                           type="number"
                           value={member.meals}
-                           onChange={(e) => updateMember(member.name, "meals", parseFloat(e.target.value || "0") || 0)}
+                          onChange={(e) => updateMember(member.name, "meals", parseFloat(e.target.value || "0") || 0)}
                           onFocus={handleInputFocus}
-                          className="w-20 h-8 text-sm"
+                          className="w-14 sm:w-16 h-8 text-sm"
                         />
                       </div>
                     )}
                     <div className="flex items-center gap-1">
-                      <Label className="text-xs text-muted-foreground">Deposit:</Label>
+                      <Label className="text-xs text-muted-foreground whitespace-nowrap">Dep:</Label>
                       <Input
                         type="number"
                         value={member.deposits}
                         onChange={(e) => updateMember(member.name, "deposits", parseFloat(e.target.value || "0") || 0)}
                         onFocus={handleInputFocus}
-                        className="w-24 h-8 text-sm"
+                        className="w-16 sm:w-20 h-8 text-sm"
                       />
                     </div>
                     <div className="flex items-center gap-1">
-                      <Label className="text-xs text-muted-foreground">Guest ₹:</Label>
+                      <Label className="text-xs text-muted-foreground whitespace-nowrap">Guest:</Label>
                       <Input
                         type="number"
                         value={member.guest}
                         onChange={(e) => updateMember(member.name, "guest", parseFloat(e.target.value || "0") || 0)}
                         onFocus={handleInputFocus}
-                        className="w-24 h-8 text-sm"
+                        className="w-16 sm:w-20 h-8 text-sm"
                       />
                     </div>
                     <div className="flex items-center gap-1">
-                      <Label className="text-xs text-muted-foreground">Fine ₹:</Label>
+                      <Label className="text-xs text-muted-foreground whitespace-nowrap">Fine:</Label>
                       <Input
                         type="number"
                         value={member.fine}
                         onChange={(e) => updateMember(member.name, "fine", parseFloat(e.target.value || "0") || 0)}
                         onFocus={handleInputFocus}
-                        className="w-24 h-8 text-sm"
+                        className="w-16 sm:w-20 h-8 text-sm"
                       />
                     </div>
                   </div>
@@ -365,7 +365,7 @@ const Index = () => {
                     variant="ghost"
                     size="icon"
                     onClick={() => removeMember(member.name)}
-                    className="h-8 w-8"
+                    className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -378,11 +378,11 @@ const Index = () => {
             )}
 
             <div className="flex flex-wrap gap-2 mt-4">
-              <Button variant="outline" onClick={exportData} disabled={members.length === 0}>
+              <Button variant="outline" onClick={exportData} disabled={members.length === 0} className="hover:bg-primary/10 hover:border-primary transition-colors">
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </Button>
-              <Button variant="outline" asChild>
+              <Button variant="outline" asChild className="hover:bg-primary/10 hover:border-primary transition-colors">
                 <label className="cursor-pointer">
                   <Upload className="w-4 h-4 mr-2" />
                   Import
@@ -394,7 +394,7 @@ const Index = () => {
                   />
                 </label>
               </Button>
-              <Button variant="outline" onClick={downloadDefaultMembers}>
+              <Button variant="outline" onClick={downloadDefaultMembers} className="hover:bg-primary/10 hover:border-primary transition-colors">
                 <Download className="w-4 h-4 mr-2" />
                 Download Template
               </Button>
@@ -408,8 +408,8 @@ const Index = () => {
             <CardTitle>Expenses</CardTitle>
             <CardDescription>Enter all mess expenses for the period</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
+              <CardContent>
+                <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="rice">Rice Cost (₹)</Label>
                 <Input
@@ -511,7 +511,7 @@ const Index = () => {
           <Button 
             size="lg" 
             onClick={calculateBills}
-            className="bg-gradient-primary shadow-elevated hover:opacity-90 transition-opacity"
+            className="bg-gradient-primary shadow-elevated hover:opacity-90 hover:scale-105 transition-all duration-200"
           >
             <Calculator className="w-5 h-5 mr-2" />
             Calculate Bills
@@ -527,7 +527,7 @@ const Index = () => {
                 variant="outline"
                 size="lg" 
                 onClick={printResults}
-                className="gap-2"
+                className="gap-2 hover:bg-primary/10 hover:border-primary hover:scale-105 transition-all duration-200"
               >
                 <Printer className="w-5 h-5" />
                 Print / Save as PDF
@@ -601,7 +601,7 @@ const Index = () => {
                 <CardDescription>Key metrics for this billing period</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="p-3 rounded-lg bg-muted/50">
                     <div className="text-xs text-muted-foreground mb-1">Total Members</div>
                     <div className="text-xl font-bold text-foreground">{overview.totalMembers}</div>
@@ -624,49 +624,49 @@ const Index = () => {
 
             {/* Individual Bills Card */}
             <Card className="shadow-elevated print:break-inside-avoid">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Individual Bills</CardTitle>
-                <CardDescription className="text-xs">Detailed bill breakdown for all members</CardDescription>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base sm:text-lg">Individual Bills</CardTitle>
+                <CardDescription className="text-xs">Detailed breakdown</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {results.map((member) => (
-                    <div key={member.name} className="border rounded-lg p-3 hover:shadow-sm transition-shadow print:break-inside-avoid">
-                      <div className="flex justify-between items-start mb-2">
+                    <div key={member.name} className="border rounded-lg p-2 sm:p-3 hover:shadow-sm transition-shadow print:break-inside-avoid">
+                      <div className="flex justify-between items-start mb-1.5">
                         <div>
-                          <h3 className="font-semibold text-base">{member.name}</h3>
-                          <div className="flex gap-1 mt-1">
+                          <h3 className="font-semibold text-sm sm:text-base">{member.name}</h3>
+                          <div className="flex gap-1 mt-0.5">
                             {member.isGuest && (
-                              <Badge variant="secondary" className="text-[10px] py-0">Guest Only</Badge>
+                              <Badge variant="secondary" className="text-[9px] sm:text-[10px] py-0 px-1">Guest</Badge>
                             )}
                             {!member.isGuest && member.effectiveMeals > member.meals && (
-                              <Badge variant="outline" className="text-[10px] py-0">Min. applied</Badge>
+                              <Badge variant="outline" className="text-[9px] sm:text-[10px] py-0 px-1">Min</Badge>
                             )}
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-[10px] text-muted-foreground">Outstanding</div>
-                          <div className={`text-lg font-bold ${
+                          <div className="text-[9px] sm:text-[10px] text-muted-foreground">Outstanding</div>
+                          <div className={`text-base sm:text-lg font-bold ${
                             member.outstanding > 0 ? "text-destructive" : "text-success"
                           }`}>
                             ₹{member.outstanding.toFixed(2)}
                           </div>
                         </div>
                       </div>
-                      <Separator className="my-2" />
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                      <Separator className="my-1.5" />
+                      <div className="grid grid-cols-2 gap-x-2 sm:gap-x-4 gap-y-0.5 text-[10px] sm:text-xs">
                         {!member.isGuest && (
                           <>
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Eff. Meals:</span>
+                              <span className="text-muted-foreground">Meals:</span>
                               <span className="font-medium">{member.effectiveMeals}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Meal Cost:</span>
+                              <span className="text-muted-foreground">Cost:</span>
                               <span className="font-medium">₹{member.mealCost.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-muted-foreground">Est. Charge:</span>
+                              <span className="text-muted-foreground">Est.:</span>
                               <span className="font-medium">₹{member.establishmentCharge.toFixed(2)}</span>
                             </div>
                           </>
@@ -685,8 +685,8 @@ const Index = () => {
                           <span className="text-muted-foreground">Deposits:</span>
                           <span className="font-medium">₹{member.deposits.toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between font-semibold pt-1 border-t col-span-2">
-                          <span>Total Bill:</span>
+                        <div className="flex justify-between font-semibold pt-0.5 border-t col-span-2 text-xs sm:text-sm">
+                          <span>Total:</span>
                           <span>₹{member.totalBill.toFixed(2)}</span>
                         </div>
                       </div>
