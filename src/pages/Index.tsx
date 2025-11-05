@@ -427,13 +427,13 @@ const Index = () => {
 
             <div className="space-y-2">
               {members.map((member) => (
-                <div key={member.name} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-2 sm:p-3 border rounded-lg hover:shadow-sm transition-shadow">
-                  <div className="flex-1 min-w-0 font-medium text-sm sm:text-base">
-                    {member.name}
-                    {member.isGuest && (
-                      <Badge variant="secondary" className="ml-2 text-xs">Guest</Badge>
-                    )}
-                  </div>
+                 <div key={member.name} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-2 sm:p-3 border rounded-lg hover:shadow-sm transition-shadow">
+                   <div className="flex-1 min-w-0 font-medium text-sm sm:text-base whitespace-nowrap overflow-hidden text-ellipsis">
+                     {member.name}
+                     {member.isGuest && (
+                       <Badge variant="secondary" className="ml-2 text-xs">Guest</Badge>
+                     )}
+                   </div>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2 w-full sm:w-auto">
                     {!member.isGuest && (
                       <div className="flex items-center gap-1">
@@ -715,63 +715,6 @@ const Index = () => {
               </Button>
             </div>
 
-            {/* Compact Summary Table */}
-            <Card className="shadow-card print:shadow-none print:break-inside-avoid">
-              <CardHeader>
-                <CardTitle>Quick Summary</CardTitle>
-                <CardDescription>At-a-glance view of all member bills</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left p-1.5 font-semibold">Name</th>
-                        <th className="text-right p-1.5 font-semibold">Actual Meals</th>
-                        <th className="text-right p-1.5 font-semibold">Eff. Meals</th>
-                        <th className="text-right p-1.5 font-semibold">Est. Charge</th>
-                        <th className="text-right p-1.5 font-semibold">Total Bill</th>
-                        <th className="text-right p-1.5 font-semibold">Deposits</th>
-                        <th className="text-right p-1.5 font-semibold">Outstanding</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {results.map((member) => (
-                        <tr key={member.name} className="border-b hover:bg-muted/50">
-                          <td className="p-1.5 text-xs">
-                            {member.name}
-                            {member.isGuest && (
-                              <Badge variant="secondary" className="ml-1 text-[10px] py-0">Guest</Badge>
-                            )}
-                          </td>
-                          <td className="text-right p-1.5">
-                            {member.isGuest ? "-" : member.meals}
-                          </td>
-                          <td className="text-right p-1.5">
-                            {member.isGuest ? "-" : member.effectiveMeals}
-                          </td>
-                          <td className="text-right p-1.5">
-                            {member.isGuest ? "-" : `₹${member.establishmentCharge.toFixed(2)}`}
-                          </td>
-                          <td className="text-right p-1.5 font-medium">
-                            ₹{member.totalBill.toFixed(2)}
-                          </td>
-                          <td className="text-right p-1.5">
-                            ₹{member.deposits.toFixed(2)}
-                          </td>
-                          <td className={`text-right p-1.5 font-semibold ${
-                            member.outstanding > 0 ? "text-destructive" : "text-success"
-                          }`}>
-                            ₹{member.outstanding.toFixed(2)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Overview Card */}
             <Card className="shadow-elevated border-primary/20 print:shadow-none print:border print:break-inside-avoid">
               <CardHeader>
@@ -813,8 +756,9 @@ const Index = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs border-collapse">
                     <thead>
-                      <tr className="border-b-2 border-border">
+                     <tr className="border-b-2 border-border">
                         <th className="text-left p-2 font-semibold">Name</th>
+                        <th className="text-right p-2 font-semibold hidden sm:table-cell">Actual Meals</th>
                         <th className="text-right p-2 font-semibold hidden sm:table-cell">Meals</th>
                         <th className="text-right p-2 font-semibold hidden sm:table-cell">M.Cost</th>
                         <th className="text-right p-2 font-semibold hidden sm:table-cell">Est.</th>
@@ -846,9 +790,12 @@ const Index = () => {
                               <div>G: ₹{member.guest.toFixed(2)} • F: ₹{member.fine.toFixed(2)} • D: ₹{member.deposits.toFixed(2)}</div>
                             </div>
                           </td>
-                          <td className="text-right p-2 hidden sm:table-cell">
-                            {member.isGuest ? "-" : member.effectiveMeals}
-                          </td>
+                           <td className="text-right p-2 hidden sm:table-cell">
+                             {member.isGuest ? "-" : member.meals}
+                           </td>
+                           <td className="text-right p-2 hidden sm:table-cell">
+                             {member.isGuest ? "-" : member.effectiveMeals}
+                           </td>
                           <td className="text-right p-2 hidden sm:table-cell">
                             {member.isGuest ? "-" : `₹${member.mealCost.toFixed(2)}`}
                           </td>
