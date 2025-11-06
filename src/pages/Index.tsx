@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, Download, Upload, Trash2, UserPlus, Users, Printer, Share2, History } from "lucide-react";
+import { Calculator, Download, Upload, Trash2, UserPlus, Users, Printer, Share2, History, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 interface Member {
   name: string;
@@ -71,6 +72,8 @@ const Index = () => {
   const [overview, setOverview] = useState<OverviewData | null>(null);
   const [history, setHistory] = useState<CalculationHistory[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+  const [comparisonEntry, setComparisonEntry] = useState<CalculationHistory | null>(null);
 
   // Load from localStorage
   useEffect(() => {
@@ -232,10 +235,10 @@ const Index = () => {
   const printResults = () => {
     // Set document title for print filename
     const currentDate = new Date();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-    const year = String(currentDate.getFullYear()).slice(-2);
+    const monthName = format(currentDate, "MMM");
+    const year = currentDate.getFullYear();
     const originalTitle = document.title;
-    document.title = `Mess Bill_${month}/${year}_DevSan`;
+    document.title = `Mess Bill_${monthName},${year}_DevSan`;
     
     window.print();
     
@@ -251,10 +254,10 @@ const Index = () => {
     if (!results || !overview) return;
     
     const currentDate = new Date();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const monthName = format(currentDate, "MMM");
     const year = currentDate.getFullYear();
     
-    let message = `*🍽️ Mess Bill Summary - ${month}/${year}*\n\n`;
+    let message = `*🍽️ Mess Bill Summary - ${monthName}, ${year}*\n\n`;
     message += `*Overview:*\n`;
     message += `Total Members: ${overview.totalMembers}\n`;
     message += `Total Meals: ${overview.totalMeals}\n`;
@@ -375,9 +378,15 @@ const Index = () => {
   };
 
   const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    if (e.target.value === "0") {
-      e.target.select();
+    if (e.target.value === "0" || e.target.value === "") {
+      e.target.value = "";
     }
+  };
+
+  const handleInputChange = (value: string) => {
+    // Remove leading zeros
+    const cleanedValue = value.replace(/^0+(?=\d)/, "");
+    return parseFloat(cleanedValue || "0") || 0;
   };
 
   return (
@@ -440,8 +449,8 @@ const Index = () => {
                         <Label className="text-xs text-muted-foreground whitespace-nowrap">Meals:</Label>
                         <Input
                           type="number"
-                          value={member.meals}
-                          onChange={(e) => updateMember(member.name, "meals", parseFloat(e.target.value || "0") || 0)}
+                          value={member.meals || ""}
+                          onChange={(e) => updateMember(member.name, "meals", handleInputChange(e.target.value))}
                           onFocus={handleInputFocus}
                           className="w-14 sm:w-16 h-8 text-sm"
                         />
@@ -451,8 +460,8 @@ const Index = () => {
                       <Label className="text-xs text-muted-foreground whitespace-nowrap">Dep:</Label>
                       <Input
                         type="number"
-                        value={member.deposits}
-                        onChange={(e) => updateMember(member.name, "deposits", parseFloat(e.target.value || "0") || 0)}
+                        value={member.deposits || ""}
+                        onChange={(e) => updateMember(member.name, "deposits", handleInputChange(e.target.value))}
                         onFocus={handleInputFocus}
                         className="w-16 sm:w-20 h-8 text-sm"
                       />
@@ -461,8 +470,8 @@ const Index = () => {
                       <Label className="text-xs text-muted-foreground whitespace-nowrap">Guest:</Label>
                       <Input
                         type="number"
-                        value={member.guest}
-                        onChange={(e) => updateMember(member.name, "guest", parseFloat(e.target.value || "0") || 0)}
+                        value={member.guest || ""}
+                        onChange={(e) => updateMember(member.name, "guest", handleInputChange(e.target.value))}
                         onFocus={handleInputFocus}
                         className="w-16 sm:w-20 h-8 text-sm"
                       />
@@ -471,8 +480,8 @@ const Index = () => {
                       <Label className="text-xs text-muted-foreground whitespace-nowrap">Fine:</Label>
                       <Input
                         type="number"
-                        value={member.fine}
-                        onChange={(e) => updateMember(member.name, "fine", parseFloat(e.target.value || "0") || 0)}
+                        value={member.fine || ""}
+                        onChange={(e) => updateMember(member.name, "fine", handleInputChange(e.target.value))}
                         onFocus={handleInputFocus}
                         className="w-16 sm:w-20 h-8 text-sm"
                       />
@@ -532,8 +541,8 @@ const Index = () => {
                 <Input
                   id="rice"
                   type="number"
-                  value={riceCost}
-                  onChange={(e) => setRiceCost(parseFloat(e.target.value || "0") || 0)}
+                  value={riceCost || ""}
+                  onChange={(e) => setRiceCost(handleInputChange(e.target.value))}
                   onFocus={handleInputFocus}
                 />
               </div>
@@ -542,8 +551,8 @@ const Index = () => {
                 <Input
                   id="marketing"
                   type="number"
-                  value={marketingCost}
-                  onChange={(e) => setMarketingCost(parseFloat(e.target.value || "0") || 0)}
+                  value={marketingCost || ""}
+                  onChange={(e) => setMarketingCost(handleInputChange(e.target.value))}
                   onFocus={handleInputFocus}
                 />
               </div>
@@ -552,8 +561,8 @@ const Index = () => {
                 <Input
                   id="gas"
                   type="number"
-                  value={gasCost}
-                  onChange={(e) => setGasCost(parseFloat(e.target.value || "0") || 0)}
+                  value={gasCost || ""}
+                  onChange={(e) => setGasCost(handleInputChange(e.target.value))}
                   onFocus={handleInputFocus}
                 />
               </div>
@@ -562,8 +571,8 @@ const Index = () => {
                 <Input
                   id="paper"
                   type="number"
-                  value={paperCost}
-                  onChange={(e) => setPaperCost(parseFloat(e.target.value || "0") || 0)}
+                  value={paperCost || ""}
+                  onChange={(e) => setPaperCost(handleInputChange(e.target.value))}
                   onFocus={handleInputFocus}
                 />
               </div>
@@ -572,8 +581,8 @@ const Index = () => {
                 <Input
                   id="others"
                   type="number"
-                  value={otherCosts}
-                  onChange={(e) => setOtherCosts(parseFloat(e.target.value || "0") || 0)}
+                  value={otherCosts || ""}
+                  onChange={(e) => setOtherCosts(handleInputChange(e.target.value))}
                   onFocus={handleInputFocus}
                 />
               </div>
@@ -582,8 +591,8 @@ const Index = () => {
                 <Input
                   id="boundMeal"
                   type="number"
-                  value={boundMeal}
-                  onChange={(e) => setBoundMeal(parseFloat(e.target.value || "0") || 0)}
+                  value={boundMeal || ""}
+                  onChange={(e) => setBoundMeal(handleInputChange(e.target.value))}
                   onFocus={handleInputFocus}
                 />
               </div>
@@ -597,8 +606,8 @@ const Index = () => {
                 <Input
                   id="cookTotal"
                   type="number"
-                  value={totalCookCharge}
-                  onChange={(e) => handleCookChargeChange(parseFloat(e.target.value || "0") || 0, "total")}
+                  value={totalCookCharge || ""}
+                  onChange={(e) => handleCookChargeChange(handleInputChange(e.target.value), "total")}
                   onFocus={handleInputFocus}
                   placeholder="Enter total or per head"
                 />
@@ -613,8 +622,8 @@ const Index = () => {
                 <Input
                   id="cookRate"
                   type="number"
-                  value={cookRatePerHead}
-                  onChange={(e) => handleCookChargeChange(parseFloat(e.target.value || "0") || 0, "perHead")}
+                  value={cookRatePerHead || ""}
+                  onChange={(e) => handleCookChargeChange(handleInputChange(e.target.value), "perHead")}
                   onFocus={handleInputFocus}
                   placeholder="Enter per head or total"
                 />
@@ -642,6 +651,17 @@ const Index = () => {
             <History className="w-5 h-5 mr-2" />
             History ({history.length})
           </Button>
+          {results && history.length > 1 && (
+            <Button 
+              variant="outline"
+              size="lg"
+              onClick={() => setShowComparison(!showComparison)}
+              className="hover:bg-primary/10 hover:border-primary hover:scale-105 transition-all duration-200"
+            >
+              <TrendingUp className="w-5 h-5 mr-2" />
+              Compare
+            </Button>
+          )}
         </div>
 
         {/* History Section */}
@@ -664,13 +684,7 @@ const Index = () => {
                   <div key={entry.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-3 border rounded-lg hover:shadow-sm transition-shadow">
                     <div className="flex-1">
                       <div className="font-medium text-sm">
-                        {new Date(entry.date).toLocaleDateString('en-IN', { 
-                          day: '2-digit', 
-                          month: 'short', 
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
+                        {format(new Date(entry.date), "MMM, yyyy - hh:mm a")}
                       </div>
                       <div className="text-xs text-muted-foreground mt-1">
                         {entry.results.length} members • ₹{entry.overview.mealRate.toFixed(2)}/meal
@@ -690,9 +704,154 @@ const Index = () => {
           </Card>
         )}
 
+        {/* Monthly Comparison Section */}
+        {showComparison && results && overview && (
+          <Card className="mb-6 shadow-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Monthly Comparison
+              </CardTitle>
+              <CardDescription>Compare current calculation with previous month</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4">
+                <Label>Select Previous Month to Compare</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                  {history.slice(1).map((entry) => (
+                    <Button
+                      key={entry.id}
+                      variant={comparisonEntry?.id === entry.id ? "default" : "outline"}
+                      onClick={() => setComparisonEntry(entry)}
+                      className="justify-start"
+                    >
+                      {format(new Date(entry.date), "MMM, yyyy")} - ₹{entry.overview.mealRate.toFixed(2)}/meal
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {comparisonEntry && (
+                <div className="space-y-4">
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h3 className="font-semibold mb-3">Current Month</h3>
+                      <div className="space-y-2">
+                        <div className="flex justify-between p-2 rounded bg-muted/50">
+                          <span className="text-sm">Date:</span>
+                          <span className="font-medium">{format(new Date(), "MMM, yyyy")}</span>
+                        </div>
+                        <div className="flex justify-between p-2 rounded bg-muted/50">
+                          <span className="text-sm">Total Members:</span>
+                          <span className="font-medium">{overview.totalMembers}</span>
+                        </div>
+                        <div className="flex justify-between p-2 rounded bg-muted/50">
+                          <span className="text-sm">Total Meals:</span>
+                          <span className="font-medium">{overview.totalMeals}</span>
+                        </div>
+                        <div className="flex justify-between p-2 rounded bg-muted/50">
+                          <span className="text-sm">Meal Rate:</span>
+                          <span className="font-medium">₹{overview.mealRate.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between p-2 rounded bg-muted/50">
+                          <span className="text-sm">Est. Charge:</span>
+                          <span className="font-medium">₹{overview.establishmentCharge.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-3">Previous Month</h3>
+                      <div className="space-y-2">
+                        <div className="flex justify-between p-2 rounded bg-muted/50">
+                          <span className="text-sm">Date:</span>
+                          <span className="font-medium">{format(new Date(comparisonEntry.date), "MMM, yyyy")}</span>
+                        </div>
+                        <div className="flex justify-between p-2 rounded bg-muted/50">
+                          <span className="text-sm">Total Members:</span>
+                          <span className="font-medium">{comparisonEntry.overview.totalMembers}</span>
+                        </div>
+                        <div className="flex justify-between p-2 rounded bg-muted/50">
+                          <span className="text-sm">Total Meals:</span>
+                          <span className="font-medium">{comparisonEntry.overview.totalMeals}</span>
+                        </div>
+                        <div className="flex justify-between p-2 rounded bg-muted/50">
+                          <span className="text-sm">Meal Rate:</span>
+                          <span className="font-medium">₹{comparisonEntry.overview.mealRate.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between p-2 rounded bg-muted/50">
+                          <span className="text-sm">Est. Charge:</span>
+                          <span className="font-medium">₹{comparisonEntry.overview.establishmentCharge.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div>
+                    <h3 className="font-semibold mb-3">Changes</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between p-3 rounded bg-muted/50">
+                        <span className="text-sm">Meal Rate Change:</span>
+                        <span className={`font-bold ${
+                          overview.mealRate > comparisonEntry.overview.mealRate 
+                            ? "text-destructive" 
+                            : overview.mealRate < comparisonEntry.overview.mealRate 
+                              ? "text-success" 
+                              : "text-muted-foreground"
+                        }`}>
+                          {overview.mealRate > comparisonEntry.overview.mealRate ? "↑" : overview.mealRate < comparisonEntry.overview.mealRate ? "↓" : "→"} 
+                          ₹{Math.abs(overview.mealRate - comparisonEntry.overview.mealRate).toFixed(2)}
+                          {overview.mealRate !== comparisonEntry.overview.mealRate && (
+                            <span className="text-xs ml-2">
+                              ({((overview.mealRate - comparisonEntry.overview.mealRate) / comparisonEntry.overview.mealRate * 100).toFixed(1)}%)
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex justify-between p-3 rounded bg-muted/50">
+                        <span className="text-sm">Est. Charge Change:</span>
+                        <span className={`font-bold ${
+                          overview.establishmentCharge > comparisonEntry.overview.establishmentCharge 
+                            ? "text-destructive" 
+                            : overview.establishmentCharge < comparisonEntry.overview.establishmentCharge 
+                              ? "text-success" 
+                              : "text-muted-foreground"
+                        }`}>
+                          {overview.establishmentCharge > comparisonEntry.overview.establishmentCharge ? "↑" : overview.establishmentCharge < comparisonEntry.overview.establishmentCharge ? "↓" : "→"} 
+                          ₹{Math.abs(overview.establishmentCharge - comparisonEntry.overview.establishmentCharge).toFixed(2)}
+                          {overview.establishmentCharge !== comparisonEntry.overview.establishmentCharge && (
+                            <span className="text-xs ml-2">
+                              ({((overview.establishmentCharge - comparisonEntry.overview.establishmentCharge) / comparisonEntry.overview.establishmentCharge * 100).toFixed(1)}%)
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex justify-between p-3 rounded bg-muted/50">
+                        <span className="text-sm">Total Meals Change:</span>
+                        <span className="font-bold">
+                          {overview.totalMeals > comparisonEntry.overview.totalMeals ? "↑" : overview.totalMeals < comparisonEntry.overview.totalMeals ? "↓" : "→"} 
+                          {Math.abs(overview.totalMeals - comparisonEntry.overview.totalMeals)} meals
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
         {/* Results Section */}
         {results && overview && (
           <div id="results" className="space-y-6">
+            {/* Print Header - Only visible when printing */}
+            <div className="hidden print:block text-center mb-6">
+              <h1 className="text-3xl font-bold">Mess Bill {format(new Date(), "MMM, yyyy")}</h1>
+              <p className="text-sm text-muted-foreground mt-2">Santiniketan Mess Calculator</p>
+            </div>
+
             {/* Action Buttons */}
             <div className="flex flex-wrap justify-center gap-3 print:hidden">
               <Button 
