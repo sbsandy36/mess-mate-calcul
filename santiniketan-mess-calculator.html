@@ -586,7 +586,11 @@
     <div class="container">
         <div class="header">
             <div class="header-icon">
-                <span style="font-size: 32px; color: white;">🧮</span>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <line x1="3" y1="9" x2="21" y2="9"/>
+                    <line x1="9" y1="21" x2="9" y2="9"/>
+                </svg>
             </div>
             <h1>Santiniketan Mess Calculator</h1>
             <p>Transparent hostel bill management & calculation</p>
@@ -595,7 +599,7 @@
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">
-                    <span>👥</span>
+                    <span style="font-weight: bold;">&#9776;</span>
                     Members Management
                 </h2>
                 <p class="card-description">Add and manage mess members</p>
@@ -608,7 +612,7 @@
                     <span style="font-size: 0.85rem;">Guest Only</span>
                 </label>
                 <button class="btn btn-primary" onclick="addMember()">
-                    <span>➕</span>
+                    <span style="font-weight: bold;">+</span>
                     Add
                 </button>
             </div>
@@ -617,18 +621,18 @@
 
             <div class="flex flex-wrap gap-2" style="margin-top: 16px;">
                 <button class="btn btn-outline" onclick="exportData()">
-                    <span>💾</span>
+                    <span style="font-weight: bold;">&#8595;</span>
                     Export
                 </button>
                 <div class="file-input-wrapper">
                     <button class="btn btn-outline">
-                        <span>📤</span>
+                        <span style="font-weight: bold;">&#8593;</span>
                         Import
                     </button>
                     <input type="file" id="importFile" accept=".json" onchange="importData(event)">
                 </div>
                 <button class="btn btn-outline" onclick="downloadTemplate()">
-                    <span>📄</span>
+                    <span style="font-weight: bold;">&#9776;</span>
                     Download Template
                 </button>
             </div>
@@ -637,7 +641,7 @@
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">
-                    <span>💰</span>
+                    <span style="font-weight: bold;">Rs.</span>
                     Expenses
                 </h2>
                 <p class="card-description">Enter all mess expenses for the period</p>
@@ -681,15 +685,15 @@
 
         <div class="flex flex-wrap justify-center gap-3" style="margin-bottom: 24px;">
             <button class="btn btn-primary btn-lg" onclick="calculateBills()">
-                <span>🧮</span>
+                <span style="font-weight: bold;">=</span>
                 Calculate Bills
             </button>
             <button class="btn btn-outline btn-lg" onclick="toggleHistory()">
-                <span>📜</span>
+                <span style="font-weight: bold;">&#9776;</span>
                 History (<span id="historyCount">0</span>)
             </button>
             <button class="btn btn-outline btn-lg hidden" id="compareBtn" onclick="toggleComparison()">
-                <span>📊</span>
+                <span style="font-weight: bold;">&#8645;</span>
                 Compare
             </button>
         </div>
@@ -710,7 +714,7 @@
         <div class="card hidden" id="comparisonSection">
             <div class="card-header">
                 <h2 class="card-title">
-                    <span>📊</span>
+                    <span style="font-weight: bold;">&#8645;</span>
                     Monthly Comparison
                 </h2>
                 <p class="card-description">Compare current calculation with previous month</p>
@@ -730,11 +734,11 @@
 
             <div class="flex flex-wrap justify-center gap-3 no-print" style="margin-bottom: 24px;">
                 <button class="btn btn-outline btn-lg" onclick="printResults()">
-                    <span>🖨️</span>
+                    <span style="font-weight: bold;">&#9113;</span>
                     Print / Save as PDF
                 </button>
                 <button class="btn btn-success btn-lg" onclick="shareViaWhatsApp()">
-                    <span>📱</span>
+                    <span style="font-weight: bold;">&#9742;</span>
                     Share via WhatsApp
                 </button>
             </div>
@@ -742,7 +746,7 @@
             <div class="card">
                 <div class="card-header">
                     <h2 class="card-title">
-                        <span>🧮</span>
+                        <span style="font-weight: bold;">=</span>
                         Calculation Overview
                     </h2>
                     <p class="card-description">Key metrics for this billing period</p>
@@ -758,11 +762,11 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Meal Rate</div>
-                        <div class="stat-value" id="mealRate">₹0.00</div>
+                        <div class="stat-value" id="mealRate">Rs. 0.00</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Est. Charge</div>
-                        <div class="stat-value" id="estCharge">₹0.00</div>
+                        <div class="stat-value" id="estCharge">Rs. 0.00</div>
                     </div>
                 </div>
             </div>
@@ -795,7 +799,7 @@
         </div>
 
         <footer>
-            Crafted with ❤️ by <strong>DevSan (Sandipan Bera)</strong>
+            Crafted by <strong>DevSan (Sandipan Bera)</strong>
         </footer>
     </div>
 
@@ -958,7 +962,7 @@
                         </div>
                     </div>
                     <button class="btn btn-outline btn-icon" onclick="removeMember('${member.name}')">
-                        🗑️
+                        <span style="font-weight: bold;">X</span>
                     </button>
                 </div>
             `).join('');
@@ -1144,8 +1148,8 @@
 
             document.getElementById('totalMembers').textContent = overview.totalMembers;
             document.getElementById('totalMeals').textContent = overview.totalMeals;
-            document.getElementById('mealRate').textContent = '₹' + overview.mealRate.toFixed(2);
-            document.getElementById('estCharge').textContent = '₹' + overview.establishmentCharge.toFixed(2);
+            document.getElementById('mealRate').textContent = 'Rs. ' + overview.mealRate.toFixed(2);
+            document.getElementById('estCharge').textContent = 'Rs. ' + overview.establishmentCharge.toFixed(2);
             document.getElementById('printDate').textContent = formatDate(new Date());
 
             const tbody = document.getElementById('billsTableBody');
@@ -1158,20 +1162,20 @@
                             ${!member.isGuest && member.effectiveMeals > member.meals ? '<span class="badge badge-outline" style="font-size: 0.65rem;">Min</span>' : ''}
                         </div>
                         <div class="mobile-details">
-                            ${!member.isGuest ? `M: ${member.effectiveMeals} • C: ₹${member.mealCost.toFixed(2)} • E: ₹${member.establishmentCharge.toFixed(2)}<br>` : ''}
-                            G: ₹${member.guest.toFixed(2)} • F: ₹${member.fine.toFixed(2)} • D: ₹${member.deposits.toFixed(2)}
+                            ${!member.isGuest ? `M: ${member.effectiveMeals} • C: Rs. ${member.mealCost.toFixed(2)} • E: Rs. ${member.establishmentCharge.toFixed(2)}<br>` : ''}
+                            G: Rs. ${member.guest.toFixed(2)} • F: Rs. ${member.fine.toFixed(2)} • D: Rs. ${member.deposits.toFixed(2)}
                         </div>
                     </td>
                     <td class="text-right hide-mobile">${member.isGuest ? '-' : member.meals}</td>
                     <td class="text-right hide-mobile">${member.isGuest ? '-' : member.effectiveMeals}</td>
-                    <td class="text-right hide-mobile">${member.isGuest ? '-' : '₹' + member.mealCost.toFixed(2)}</td>
-                    <td class="text-right hide-mobile">${member.isGuest ? '-' : '₹' + member.establishmentCharge.toFixed(2)}</td>
-                    <td class="text-right hide-mobile">₹${member.guest.toFixed(2)}</td>
-                    <td class="text-right hide-mobile">${member.fine > 0 ? '<span class="text-danger">₹' + member.fine.toFixed(2) + '</span>' : '-'}</td>
-                    <td class="text-right hide-mobile">₹${member.deposits.toFixed(2)}</td>
-                    <td class="text-right" style="font-weight: 600;">₹${member.totalBill.toFixed(2)}</td>
+                    <td class="text-right hide-mobile">${member.isGuest ? '-' : 'Rs. ' + member.mealCost.toFixed(2)}</td>
+                    <td class="text-right hide-mobile">${member.isGuest ? '-' : 'Rs. ' + member.establishmentCharge.toFixed(2)}</td>
+                    <td class="text-right hide-mobile">Rs. ${member.guest.toFixed(2)}</td>
+                    <td class="text-right hide-mobile">${member.fine > 0 ? '<span class="text-danger">Rs. ' + member.fine.toFixed(2) + '</span>' : '-'}</td>
+                    <td class="text-right hide-mobile">Rs. ${member.deposits.toFixed(2)}</td>
+                    <td class="text-right" style="font-weight: 600;">Rs. ${member.totalBill.toFixed(2)}</td>
                     <td class="text-right ${member.outstanding > 0 ? 'text-danger' : 'text-success'}" style="font-weight: bold;">
-                        ₹${member.outstanding.toFixed(2)}
+                        Rs. ${member.outstanding.toFixed(2)}
                     </td>
                 </tr>
             `).join('');
@@ -1195,30 +1199,30 @@
             if (!results || !overview) return;
 
             const currentDate = new Date();
-            let message = `*🍽️ Mess Bill Summary - ${formatDate(currentDate)}*\n\n`;
+            let message = `*Mess Bill Summary - ${formatDate(currentDate)}*\n\n`;
             message += `*Overview:*\n`;
             message += `Total Members: ${overview.totalMembers}\n`;
             message += `Total Meals: ${overview.totalMeals}\n`;
-            message += `Meal Rate: ₹${overview.mealRate.toFixed(2)}\n`;
-            message += `Est. Charge: ₹${overview.establishmentCharge.toFixed(2)}\n\n`;
+            message += `Meal Rate: Rs. ${overview.mealRate.toFixed(2)}\n`;
+            message += `Est. Charge: Rs. ${overview.establishmentCharge.toFixed(2)}\n\n`;
             message += `*Individual Bills:*\n`;
-            message += `━━━━━━━━━━━━━━━━\n`;
+            message += `================================\n`;
 
             results.forEach((member) => {
                 message += `\n*${member.name}*${member.isGuest ? ' (Guest)' : ''}\n`;
                 if (!member.isGuest) {
-                    message += `Meals: ${member.effectiveMeals} | Cost: ₹${member.mealCost.toFixed(2)}\n`;
-                    message += `Est. Charge: ₹${member.establishmentCharge.toFixed(2)}\n`;
+                    message += `Meals: ${member.effectiveMeals} | Cost: Rs. ${member.mealCost.toFixed(2)}\n`;
+                    message += `Est. Charge: Rs. ${member.establishmentCharge.toFixed(2)}\n`;
                 }
-                if (member.guest > 0) message += `Guest: ₹${member.guest.toFixed(2)}\n`;
-                if (member.fine > 0) message += `Fine: ₹${member.fine.toFixed(2)}\n`;
-                message += `Deposits: ₹${member.deposits.toFixed(2)}\n`;
-                message += `*Total: ₹${member.totalBill.toFixed(2)}*\n`;
-                message += `*Outstanding: ₹${member.outstanding.toFixed(2)}*\n`;
+                if (member.guest > 0) message += `Guest: Rs. ${member.guest.toFixed(2)}\n`;
+                if (member.fine > 0) message += `Fine: Rs. ${member.fine.toFixed(2)}\n`;
+                message += `Deposits: Rs. ${member.deposits.toFixed(2)}\n`;
+                message += `*Total: Rs. ${member.totalBill.toFixed(2)}*\n`;
+                message += `*Outstanding: Rs. ${member.outstanding.toFixed(2)}*\n`;
             });
 
-            message += `\n━━━━━━━━━━━━━━━━\n`;
-            message += `Crafted with ❤️ by DevSan`;
+            message += `\n================================\n`;
+            message += `Crafted by DevSan`;
 
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
             window.open(whatsappUrl, '_blank');
@@ -1253,7 +1257,7 @@
                             ${formatDate(new Date(entry.date), 'MMM, yyyy - hh:mm a')}
                         </div>
                         <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
-                            ${entry.results.length} members • ₹${entry.overview.mealRate.toFixed(2)}/meal
+                            ${entry.results.length} members • Rs. ${entry.overview.mealRate.toFixed(2)}/meal
                         </div>
                     </div>
                     <button class="btn btn-primary btn-sm" onclick="loadHistoryEntry('${entry.id}')">
@@ -1324,7 +1328,7 @@
                 <button class="btn ${comparisonEntry && comparisonEntry.id === entry.id ? 'btn-primary' : 'btn-outline'}" 
                     onclick="selectComparisonEntry('${entry.id}')" 
                     style="justify-content: flex-start;">
-                    ${formatDate(new Date(entry.date))} - ₹${entry.overview.mealRate.toFixed(2)}/meal
+                    ${formatDate(new Date(entry.date))} - Rs. ${entry.overview.mealRate.toFixed(2)}/meal
                 </button>
             `).join('');
         }
@@ -1366,11 +1370,11 @@
                             </div>
                             <div class="comparison-item">
                                 <span style="font-size: 0.9rem;">Meal Rate:</span>
-                                <span style="font-weight: 500;">₹${overview.mealRate.toFixed(2)}</span>
+                                <span style="font-weight: 500;">Rs. ${overview.mealRate.toFixed(2)}</span>
                             </div>
                             <div class="comparison-item">
                                 <span style="font-size: 0.9rem;">Est. Charge:</span>
-                                <span style="font-weight: 500;">₹${overview.establishmentCharge.toFixed(2)}</span>
+                                <span style="font-weight: 500;">Rs. ${overview.establishmentCharge.toFixed(2)}</span>
                             </div>
                         </div>
                     </div>
@@ -1391,11 +1395,11 @@
                             </div>
                             <div class="comparison-item">
                                 <span style="font-size: 0.9rem;">Meal Rate:</span>
-                                <span style="font-weight: 500;">₹${comparisonEntry.overview.mealRate.toFixed(2)}</span>
+                                <span style="font-weight: 500;">Rs. ${comparisonEntry.overview.mealRate.toFixed(2)}</span>
                             </div>
                             <div class="comparison-item">
                                 <span style="font-size: 0.9rem;">Est. Charge:</span>
-                                <span style="font-weight: 500;">₹${comparisonEntry.overview.establishmentCharge.toFixed(2)}</span>
+                                <span style="font-weight: 500;">Rs. ${comparisonEntry.overview.establishmentCharge.toFixed(2)}</span>
                             </div>
                         </div>
                     </div>
@@ -1408,7 +1412,7 @@
                             <span style="font-size: 0.9rem;">Meal Rate Change:</span>
                             <span class="${mealRateChange > 0 ? 'text-danger' : mealRateChange < 0 ? 'text-success' : ''}" style="font-weight: bold;">
                                 ${mealRateChange > 0 ? '↑' : mealRateChange < 0 ? '↓' : '→'} 
-                                ₹${Math.abs(mealRateChange).toFixed(2)}
+                                Rs. ${Math.abs(mealRateChange).toFixed(2)}
                                 ${mealRateChange !== 0 ? `<span style="font-size: 0.75rem; margin-left: 8px;">(${mealRatePercent}%)</span>` : ''}
                             </span>
                         </div>
@@ -1416,7 +1420,7 @@
                             <span style="font-size: 0.9rem;">Est. Charge Change:</span>
                             <span class="${estChargeChange > 0 ? 'text-danger' : estChargeChange < 0 ? 'text-success' : ''}" style="font-weight: bold;">
                                 ${estChargeChange > 0 ? '↑' : estChargeChange < 0 ? '↓' : '→'} 
-                                ₹${Math.abs(estChargeChange).toFixed(2)}
+                                Rs. ${Math.abs(estChargeChange).toFixed(2)}
                                 ${estChargeChange !== 0 ? `<span style="font-size: 0.75rem; margin-left: 8px;">(${estChargePercent}%)</span>` : ''}
                             </span>
                         </div>
